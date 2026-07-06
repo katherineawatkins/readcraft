@@ -2516,12 +2516,12 @@ function TeacherDashboard({roster,onSelect,onDelete,onAddNew,onImport}){
     const students={};
     for(const name of roster){students[name]=await loadProgress(name);}
     const d=new Date();
-    const date=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    const dateStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
     const json=JSON.stringify({roster,students},null,2);
     const blob=new Blob([json],{type:"application/json"});
     const url=URL.createObjectURL(blob);
     const a=document.createElement("a");
-    a.href=url;a.download=`wordminer-backup-${date}.json`;
+    a.href=url;a.download=`wordminer-backup-${dateStr}.json`;
     document.body.appendChild(a);a.click();
     document.body.removeChild(a);URL.revokeObjectURL(url);
   }
@@ -2534,7 +2534,7 @@ function TeacherDashboard({roster,onSelect,onDelete,onAddNew,onImport}){
     reader.onload=(evt)=>{
       try{
         const parsed=JSON.parse(evt.target.result);
-        if(!Array.isArray(parsed.roster)||typeof parsed.students!=="object")throw new Error("bad format");
+        if(!Array.isArray(parsed.roster)||typeof parsed.students!=="object"||parsed.students===null)throw new Error("bad format");
         if(window.confirm(`Import ${parsed.roster.length} student(s)? This replaces all current data.`)){
           onImport?.(parsed.roster,parsed.students);
         }
