@@ -1270,7 +1270,9 @@ function CashOut({emeralds,onCashOut,initHistory=[],onSaveHistory}){
   const amt=parseInt(amount)||0;
   const canCash=amt>0&&amt<=emeralds&&reward.trim().length>0;
   function doRedeem(){
-    const entry={amount:amt,reward:reward.trim(),date:new Date().toLocaleDateString()};
+    const d=new Date();
+    const date=`${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
+    const entry={amount:amt,reward:reward.trim(),date};
     const newHistory=[entry,...history];
     setHistory(newHistory);
     onSaveHistory?.(newHistory);
@@ -2695,6 +2697,9 @@ export default function App(){
   function handleSkillSave(data){
     setProgress(p=>({...p,...data}));
   }
+  function handleCashOutHistory(h){
+    setProgress(p=>({...p,cashOutHistory:h}));
+  }
   function goBack(){
     setScreen("dashboard");
     setStudentName(null);
@@ -2748,7 +2753,7 @@ export default function App(){
         {tab==="stories"&&<Stories onEarn={handleEarn} initData={progress} onSaveProgress={handleSkillSave}/>}
         {tab==="skills"&&<SkillsHub onEarn={handleEarn} progress={progress} onSaveProgress={handleSkillSave}/>}
         {tab==="mobs"&&<Mobs mobs={progress.mobs||[]}/>}
-        {tab==="cashout"&&<CashOut emeralds={progress.emeralds||0} onCashOut={handleCashOut} initHistory={progress.cashOutHistory||[]} onSaveHistory={h=>setProgress(p=>({...p,cashOutHistory:h}))}/>}
+        {tab==="cashout"&&<CashOut emeralds={progress.emeralds||0} onCashOut={handleCashOut} initHistory={progress.cashOutHistory||[]} onSaveHistory={handleCashOutHistory}/>}
       </div>
       <div style={{textAlign:"center",marginTop:9}}>
         <span className="px" style={{fontSize:5,color:"#111"}}>WORD MINER v6 · {studentName} · PROGRESS SAVED</span>
