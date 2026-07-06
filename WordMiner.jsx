@@ -378,6 +378,8 @@ const DEFAULT_PROGRESS={
   compoundMastered:[],
   contractionMastered:[],
   vocabRevealed:{},vocabEarned:{},questDone:{},questEarned:{},
+  storiesEarned:{},
+  cashOutHistory:[],
   lastSeen:null,
 };
 async function sg(key){try{const v=localStorage.getItem(key);return v?JSON.parse(v):null;}catch{return null;}}
@@ -436,7 +438,7 @@ function StarsBg({color}){
 }
 
 function Toast({msg,onDone}){
-  useEffect(()=>{if(msg){const t=setTimeout(onDone,2600);return()=>clearTimeout(t);}},[msg,onDone]);
+  useEffect(()=>{if(msg){const t=setTimeout(onDone,2600);return()=>clearTimeout(t);}},[msg]);
   if(!msg)return null;
   return(<div style={{position:"fixed",top:14,left:"50%",transform:"translateX(-50%)",zIndex:999,animation:"pop .2s ease-out",border:"3px solid currentColor",borderRadius:4,padding:"10px 18px",fontFamily:"'Press Start 2P',monospace",fontSize:8,background:"#0a0a0a",textAlign:"center",maxWidth:"88vw",boxShadow:"0 0 20px #0008"}}>{msg}</div>);
 }
@@ -524,7 +526,7 @@ function LessonsTab({completed,activeId,onSelect}){
             {done?"✅ ":""}{l.title}</div>
           <div style={{fontSize:10,color:"#333",marginBottom:3}}>{l.biome}</div>
           <div style={{fontSize:10,color:"#6a2020"}}>vs {l.mob}</div>
-          {locked&&<div style={{fontSize:9,color:"#1a1a1a",marginTop:4}}>🔒 locked</div>}
+          {locked&&<div style={{fontSize:9,color:"#888",marginTop:4}}>🔒 locked</div>}
           {active&&<div className="px" style={{fontSize:5,color:l.color,marginTop:4}}>▶ ACTIVE</div>}
         </div>);
       })}
@@ -1260,14 +1262,23 @@ function Stories({onEarn,initData={},onSaveProgress}){
   </div>);
 }
 
-function CashOut({emeralds,onCashOut}){
+function CashOut({emeralds,onCashOut,initHistory=[],onSaveHistory}){
   const [amount,setAmount]=useState("");
   const [reward,setReward]=useState("");
   const [confirm,setConfirm]=useState(false);
-  const [history,setHistory]=useState([]);
+  const [history,setHistory]=useState(initHistory);
   const amt=parseInt(amount)||0;
   const canCash=amt>0&&amt<=emeralds&&reward.trim().length>0;
-  function doRedeem(){setHistory(h=>[{amount:amt,reward:reward.trim()},...h]);onCashOut(amt);setAmount("");setReward("");setConfirm(false);}
+  function doRedeem(){
+    const d=new Date();
+    const date=`${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
+    const entry={amount:amt,reward:reward.trim(),date};
+    const newHistory=[entry,...history];
+    setHistory(newHistory);
+    onSaveHistory?.(newHistory);
+    onCashOut(amt);
+    setAmount("");setReward("");setConfirm(false);
+  }
   return(<div>
     <div className="px" style={{fontSize:8,color:"#FFD700",marginBottom:8}}>🏆 CASH OUT EMERALDS</div>
     <div style={{borderLeft:"4px solid #FFD700",background:"#080500",padding:"9px 13px",borderRadius:"0 4px 4px 0",marginBottom:13,fontSize:14,lineHeight:1.7,color:"#888"}}>
@@ -1296,6 +1307,7 @@ function CashOut({emeralds,onCashOut}){
     </div>)}
     {history.map((h,i)=>(<div key={i} className="srow" style={{marginTop:6}}>
       <span>🏆</span><div style={{flex:1,color:"#FFD700",fontWeight:700}}>{h.reward}</div>
+      {h.date&&<div style={{fontSize:10,color:"#555"}}>{h.date}</div>}
       <div className="px" style={{fontSize:8,color:"#FF4455"}}>-{h.amount} 💎</div>
     </div>))}
   </div>);
@@ -1542,7 +1554,7 @@ function FluencySpeedrun({onEarn,initData={},onSaveProgress}){
     setRunning(false);
     const secs=Math.max(1,elapsed/1000);
     const mins=secs/60;
-    const cwpm=Math.round((passage.wc-errors)/mins);
+    const cwpm=Math.max(0,Math.round((passage.wc-errors)/mins));
     const entry={pid:passage.id,title:passage.title,secs:Math.round(secs),errors,cwpm,date:new Date().toLocaleDateString()};
     setHistory(h=>[entry,...h].slice(0,20));
     const pbKey=`${passage.id}`;
@@ -2685,6 +2697,9 @@ export default function App(){
   function handleSkillSave(data){
     setProgress(p=>({...p,...data}));
   }
+  function handleCashOutHistory(h){
+    setProgress(p=>({...p,cashOutHistory:h}));
+  }
   function goBack(){
     setScreen("dashboard");
     setStudentName(null);
@@ -2738,7 +2753,7 @@ export default function App(){
         {tab==="stories"&&<Stories onEarn={handleEarn} initData={progress} onSaveProgress={handleSkillSave}/>}
         {tab==="skills"&&<SkillsHub onEarn={handleEarn} progress={progress} onSaveProgress={handleSkillSave}/>}
         {tab==="mobs"&&<Mobs mobs={progress.mobs||[]}/>}
-        {tab==="cashout"&&<CashOut emeralds={progress.emeralds||0} onCashOut={handleCashOut}/>}
+        {tab==="cashout"&&<CashOut emeralds={progress.emeralds||0} onCashOut={handleCashOut} initHistory={progress.cashOutHistory||[]} onSaveHistory={handleCashOutHistory}/>}
       </div>
       <div style={{textAlign:"center",marginTop:9}}>
         <span className="px" style={{fontSize:5,color:"#111"}}>WORD MINER v6 · {studentName} · PROGRESS SAVED</span>
