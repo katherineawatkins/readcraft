@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 const LESSONS = [
   { id:1, title:"Short Vowels", icon:"🌾", color:"#4ADE80", colorDark:"#052E16", colorBorder:"#166534",
@@ -1159,7 +1159,7 @@ function Stories({onEarn,initData={},onSaveProgress}){
   const [active,setActive]=useState(0);
   const [revealed,setRevealedState]=useState({});
   const [earned,setEarned]=useState(initData.storiesEarned||{});
-  useEffect(()=>{onSaveProgress?.({storiesEarned:earned});},[earned]);
+  useEffect(()=>{onSaveProgress?.({storiesEarned:earned});},[earned,onSaveProgress]);
   const months=["September","October","November","December","January","February","March","April","May"];
   const allMonthStories=STORIES.filter(s=>s.month===month);
   const setAStories=allMonthStories.filter(s=>s.id<=36);
@@ -1355,7 +1355,7 @@ function SightWordPortal({onEarn,initData={},onSaveProgress}){
   const [missed,setMissed]=useState(initData.sightMissed||{});
   const [earned,setEarned]=useState({});
   const [flashLen,setFlashLen]=useState(2000);
-  useEffect(()=>{onSaveProgress?.({sightMastered:mastered,sightMissed:missed});},[mastered,missed]);
+  useEffect(()=>{onSaveProgress?.({sightMastered:mastered,sightMissed:missed});},[mastered,missed,onSaveProgress]);
 
   const sw=SIGHT_WORDS[level];
   const masteredCount=Object.keys(mastered).filter(k=>k.startsWith(level+":")||(mastered[k]&&sw.words.includes(k))).length;
@@ -1538,7 +1538,7 @@ function FluencySpeedrun({onEarn,initData={},onSaveProgress}){
   const [history,setHistory]=useState([]);
   const [phase,setPhase]=useState("select");
   const [earned,setEarned]=useState({});
-  useEffect(()=>{onSaveProgress?.({fluencyPBs:pbs});},[pbs]);
+  useEffect(()=>{onSaveProgress?.({fluencyPBs:pbs});},[pbs,onSaveProgress]);
 
   const passage=FLUENCY_PASSAGES.find(p=>p.id===pid)||FLUENCY_PASSAGES[0];
   const levelPassages=FLUENCY_PASSAGES.filter(p=>p.level===level);
@@ -1763,7 +1763,7 @@ function EnchantTable({onEarn,initData={},onSaveProgress}){
   const [phase,setPhase]=useState("teach"); // teach | quiz | done
   const [earned,setEarned]=useState({});
   const [mastered,setMastered]=useState(initData.enchantMastered||{});
-  useEffect(()=>{onSaveProgress?.({enchantMastered:mastered});},[mastered]);
+  useEffect(()=>{onSaveProgress?.({enchantMastered:mastered});},[mastered,onSaveProgress]);
 
   const affixList=AFFIXES[type];
   const affix=affixList[idx];
@@ -1925,7 +1925,7 @@ function TNTBlast({onEarn,initData={},onSaveProgress}){
   // Lock current word AND options in state so they never shift mid-answer
   const [currentWord,setCurrentWord]=useState(null);
   const [options,setOptions]=useState([]);
-  useEffect(()=>{onSaveProgress?.({tntMastered:mastered});},[mastered]);
+  useEffect(()=>{onSaveProgress?.({tntMastered:mastered});},[mastered,onSaveProgress]);
 
   // Called whenever we need to load a specific word (by type + index)
   function loadWord(t,i){
@@ -2079,7 +2079,7 @@ function CompoundCrafter({onEarn,initData={},onSaveProgress}){
   const [mastered,setMastered]=useState(initData.compoundMastered||[]);
   const [wrong,setWrong]=useState(false);
   const [showAll,setShowAll]=useState(false);
-  useEffect(()=>{onSaveProgress?.({compoundMastered:mastered});},[mastered]);
+  useEffect(()=>{onSaveProgress?.({compoundMastered:mastered});},[mastered,onSaveProgress]);
 
   const notMastered=COMPOUNDS.filter(c=>!mastered.includes(c.result));
   const current=notMastered[idx%Math.max(1,notMastered.length)]||COMPOUNDS[0];
@@ -2223,7 +2223,7 @@ function FurnaceContractions({onEarn,initData={},onSaveProgress}){
   const [current,setCurrent]=useState(initNext);
   const [quizOptions,setQuizOptions]=useState(initOpts);
 
-  useEffect(()=>{onSaveProgress?.({contractionMastered:mastered});},[mastered]);
+  useEffect(()=>{onSaveProgress?.({contractionMastered:mastered});},[mastered,onSaveProgress]);
 
   function pickNext(updatedMastered){
     const{next,opts}=buildPick(updatedMastered);
@@ -2373,7 +2373,7 @@ function VocabChest({onEarn,initData={},onSaveProgress}){
   const [questDone,setQuestDone]=useState(initData.questDone||{});
   const [questEarned,setQuestEarned]=useState(initData.questEarned||{});
   const [filter,setFilter]=useState("all");
-  useEffect(()=>{onSaveProgress?.({vocabRevealed:revealed,vocabEarned,questDone,questEarned});},[revealed,vocabEarned,questDone,questEarned]);
+  useEffect(()=>{onSaveProgress?.({vocabRevealed:revealed,vocabEarned,questDone,questEarned});},[revealed,vocabEarned,questDone,questEarned,onSaveProgress]);
 
   const filtered=filter==="all"?VOCAB_WORDS:VOCAB_WORDS.filter(v=>v.level===filter);
   const passage=QUEST_PASSAGES[questIdx];
@@ -2492,10 +2492,11 @@ function SkillsHub({onEarn,progress,onSaveProgress}){
 }
 
 // ── TEACHER DASHBOARD ────────────────────────────────────────────────
-function TeacherDashboard({roster,onSelect,onDelete,onAddNew}){
+function TeacherDashboard({roster,onSelect,onDelete,onAddNew,onImport}){
   const [newName,setNewName]=useState("");
   const [adding,setAdding]=useState(false);
   const [loadedData,setLoadedData]=useState({});
+  const importRef=useRef(null);
 
   useEffect(()=>{
     roster.forEach(async name=>{
@@ -2509,6 +2510,39 @@ function TeacherDashboard({roster,onSelect,onDelete,onAddNew}){
     if(!n)return;
     onAddNew(n);
     setNewName("");setAdding(false);
+  }
+
+  async function handleExport(){
+    const students={};
+    for(const name of roster){students[name]=await loadProgress(name);}
+    const d=new Date();
+    const date=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    const json=JSON.stringify({roster,students},null,2);
+    const blob=new Blob([json],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;a.download=`wordminer-backup-${date}.json`;
+    document.body.appendChild(a);a.click();
+    document.body.removeChild(a);URL.revokeObjectURL(url);
+  }
+
+  function handleImportFile(e){
+    const file=e.target.files[0];
+    if(!file)return;
+    e.target.value="";
+    const reader=new FileReader();
+    reader.onload=(evt)=>{
+      try{
+        const parsed=JSON.parse(evt.target.result);
+        if(!Array.isArray(parsed.roster)||typeof parsed.students!=="object")throw new Error("bad format");
+        if(window.confirm(`Import ${parsed.roster.length} student(s)? This replaces all current data.`)){
+          onImport?.(parsed.roster,parsed.students);
+        }
+      }catch{
+        alert("Invalid backup file. Please select a valid Word Miner backup (.json).");
+      }
+    };
+    reader.readAsText(file);
   }
 
   function sightPct(p){
@@ -2605,6 +2639,13 @@ function TeacherDashboard({roster,onSelect,onDelete,onAddNew}){
       }
 
       <div style={{textAlign:"center",marginTop:16}}><span className="px" style={{fontSize:5,color:"#1a3a1a"}}>WORD MINER v6 · 19 BIOMES · 7 SKILL SYSTEMS · PERSISTENT PROGRESS</span></div>
+
+      {/* Backup / Restore */}
+      <div style={{display:"flex",gap:8,marginTop:12,justifyContent:"center"}}>
+        <button className="btn btn-s" style={{fontSize:6}} onClick={handleExport} disabled={roster.length===0}>💾 EXPORT BACKUP</button>
+        <button className="btn btn-s" style={{fontSize:6}} onClick={()=>importRef.current?.click()}>📂 IMPORT BACKUP</button>
+        <input ref={importRef} type="file" accept=".json" style={{display:"none"}} onChange={handleImportFile}/>
+      </div>
     </div>
   </>);
 }
@@ -2694,11 +2735,18 @@ export default function App(){
     const l=LESSONS.find(l=>l.id===id);
     setToast(`${l?.icon} Entering ${l?.biome}!`);
   }
-  function handleSkillSave(data){
+  const handleSkillSave=useCallback(data=>{
     setProgress(p=>({...p,...data}));
-  }
-  function handleCashOutHistory(h){
+  },[]);
+  const handleCashOutHistory=useCallback(h=>{
     setProgress(p=>({...p,cashOutHistory:h}));
+  },[]);
+  async function handleImport(newRoster,newStudents){
+    for(const name of newRoster){
+      await saveProgress(name,newStudents[name]);
+    }
+    await saveRoster(newRoster);
+    setRoster(newRoster);
   }
   function goBack(){
     setScreen("dashboard");
@@ -2717,6 +2765,7 @@ export default function App(){
       onSelect={selectStudent}
       onAddNew={addStudent}
       onDelete={deleteStudent}
+      onImport={handleImport}
     />
   );
 
