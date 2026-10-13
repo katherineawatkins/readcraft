@@ -2,9 +2,6 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm install",
-  "env": {
-    "VITE_APP_NAME": "@ReadCraft"
-  },
   "git": {
     "deploymentEnabled": {
       "main": true
