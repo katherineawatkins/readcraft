@@ -378,7 +378,7 @@ const DEFAULT_PROGRESS={
   compoundMastered:[],
   contractionMastered:[],
   vocabRevealed:{},vocabEarned:{},questDone:{},questEarned:{},
-  storiesEarned:{},
+  storiesEarned:{},sightEarned:{},fluencyEarned:{},enchantEarned:{},tntEarned:{},compoundEarned:{},contractionEarned:{},
   cashOutHistory:[],
   lastSeen:null,
 };
@@ -512,7 +512,7 @@ function LessonsTab({completed,activeId,onSelect}){
   return(<div>
     <div className="px" style={{fontSize:8,color:"#4ADE80",marginBottom:8}}>🗺️ BIOME MAP — 19 WORLDS</div>
     <div style={{borderLeft:"4px solid #4ADE80",background:"#030803",padding:"9px 13px",borderRadius:"0 4px 4px 0",marginBottom:13,fontSize:14,lineHeight:1.7,color:"#4a7a4a"}}>
-      <strong style={{color:"#eee"}}>How to use:</strong> Your tutor selects a lesson before each session. Each session starts with a mini lesson about that biome's sound pattern. Complete a biome to unlock the next one.
+      <strong style={{color:"#eee"}}>How to use:</strong> Your tutor selects a lesson before each session. Each session starts with a mini lesson about that biome's sound pattern. Complete a biome to unlock the next one. Tutors can tap any locked biome to open it early.
     </div>
     <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:8}}>
       {LESSONS.map((l,i)=>{
@@ -520,13 +520,13 @@ function LessonsTab({completed,activeId,onSelect}){
         const locked=i>0&&!completed.includes(LESSONS[i-1].id);
         const active=activeId===l.id;
         return(<div key={l.id} className={`lcrd ${active?"act":""} ${locked?"lck":""}`}
-          style={active?{borderColor:l.color}:{}} onClick={()=>!locked&&onSelect(l.id)}>
+          style={active?{borderColor:l.color}:{}} onClick={()=>{if(!locked)onSelect(l.id);else if(window.confirm(`Tutor unlock: open ${l.title} now?`))onSelect(l.id);}}>
           <div style={{fontSize:18,marginBottom:2}}>{l.icon}</div>
           <div className="px" style={{fontSize:6,color:active?l.color:"#3a3a3a",marginBottom:2,lineHeight:1.6}}>
             {done?"✅ ":""}{l.title}</div>
           <div style={{fontSize:10,color:"#333",marginBottom:3}}>{l.biome}</div>
           <div style={{fontSize:10,color:"#6a2020"}}>vs {l.mob}</div>
-          {locked&&<div style={{fontSize:9,color:"#888",marginTop:4}}>🔒 locked</div>}
+          {locked&&<div style={{fontSize:9,color:"#888",marginTop:4}}>🔒 locked · tutor can tap to open</div>}
           {active&&<div className="px" style={{fontSize:5,color:l.color,marginTop:4}}>▶ ACTIVE</div>}
         </div>);
       })}
@@ -1353,7 +1353,8 @@ function SightWordPortal({onEarn,initData={},onSaveProgress}){
   const [visible,setVisible]=useState(false);
   const [mastered,setMastered]=useState(initData.sightMastered||{});
   const [missed,setMissed]=useState(initData.sightMissed||{});
-  const [earned,setEarned]=useState({});
+  const [earned,setEarned]=useState(initData.sightEarned||{});
+  useEffect(()=>{onSaveProgress?.({sightEarned:earned});},[earned,onSaveProgress]);
   const [flashLen,setFlashLen]=useState(2000);
   useEffect(()=>{onSaveProgress?.({sightMastered:mastered,sightMissed:missed});},[mastered,missed,onSaveProgress]);
 
@@ -1540,7 +1541,8 @@ function FluencySpeedrun({onEarn,initData={},onSaveProgress}){
   const [pbs,setPbs]=useState(initData.fluencyPBs||{});
   const [history,setHistory]=useState([]);
   const [phase,setPhase]=useState("select");
-  const [earned,setEarned]=useState({});
+  const [earned,setEarned]=useState(initData.fluencyEarned||{});
+  useEffect(()=>{onSaveProgress?.({fluencyEarned:earned});},[earned,onSaveProgress]);
   useEffect(()=>{onSaveProgress?.({fluencyPBs:pbs});},[pbs,onSaveProgress]);
 
   const passage=FLUENCY_PASSAGES.find(p=>p.id===pid)||FLUENCY_PASSAGES[0];
@@ -1764,7 +1766,8 @@ function EnchantTable({onEarn,initData={},onSaveProgress}){
   const [idx,setIdx]=useState(0);
   const [exIdx,setExIdx]=useState(0);
   const [phase,setPhase]=useState("teach"); // teach | quiz | done
-  const [earned,setEarned]=useState({});
+  const [earned,setEarned]=useState(initData.enchantEarned||{});
+  useEffect(()=>{onSaveProgress?.({enchantEarned:earned});},[earned,onSaveProgress]);
   const [mastered,setMastered]=useState(initData.enchantMastered||{});
   useEffect(()=>{onSaveProgress?.({enchantMastered:mastered});},[mastered,onSaveProgress]);
 
@@ -1922,7 +1925,8 @@ function TNTBlast({onEarn,initData={},onSaveProgress}){
   const [type,setType]=useState("Closed");
   const [idx,setIdx]=useState(0);
   const [phase,setPhase]=useState("teach"); // teach | blast | result
-  const [earned,setEarned]=useState({});
+  const [earned,setEarned]=useState(initData.tntEarned||{});
+  useEffect(()=>{onSaveProgress?.({tntEarned:earned});},[earned,onSaveProgress]);
   const [mastered,setMastered]=useState(initData.tntMastered||{});
   const [exploding,setExploding]=useState(false);
   // Lock current word AND options in state so they never shift mid-answer
@@ -2078,7 +2082,8 @@ function CompoundCrafter({onEarn,initData={},onSaveProgress}){
   const [phase,setPhase]=useState("craft"); // craft | result
   const [slots,setSlots]=useState([null,null]);
   const [output,setOutput]=useState(null);
-  const [earned,setEarned]=useState({});
+  const [earned,setEarned]=useState(initData.compoundEarned||{});
+  useEffect(()=>{onSaveProgress?.({compoundEarned:earned});},[earned,onSaveProgress]);
   const [mastered,setMastered]=useState(initData.compoundMastered||[]);
   const [wrong,setWrong]=useState(false);
   const [showAll,setShowAll]=useState(false);
@@ -2206,7 +2211,8 @@ const CONTRACTIONS = [
 
 function FurnaceContractions({onEarn,initData={},onSaveProgress}){
   const [phase,setPhase]=useState("smelt"); // smelt | quiz | result
-  const [earned,setEarned]=useState({});
+  const [earned,setEarned]=useState(initData.contractionEarned||{});
+  useEffect(()=>{onSaveProgress?.({contractionEarned:earned});},[earned,onSaveProgress]);
   const [mastered,setMastered]=useState(initData.contractionMastered||[]);
   const [burning,setBurning]=useState(false);
   const [showHint,setShowHint]=useState(false);
