@@ -339,7 +339,7 @@ const WORD_PAIRS = [
   {l:12,w:"zoam",r:false},{l:12,w:"troad",r:false},{l:12,w:"floam",r:false},
   {l:13,w:"moon",r:true},{l:13,w:"food",r:true},{l:13,w:"cool",r:true},{l:13,w:"spoon",r:true},{l:13,w:"bloom",r:true},
   {l:13,w:"book",r:true},{l:13,w:"cook",r:true},{l:13,w:"look",r:true},{l:13,w:"good",r:true},{l:13,w:"wood",r:true},
-  {l:13,w:"doon",r:false},{l:13,w:"fook",r:false},{l:13,w:"gool",r:false},
+  {l:13,w:"doon",r:false},{l:13,w:"zook",r:false},{l:13,w:"gool",r:false},
   {l:14,w:"coin",r:true},{l:14,w:"soil",r:true},{l:14,w:"join",r:true},{l:14,w:"point",r:true},
   {l:14,w:"boy",r:true},{l:14,w:"toy",r:true},{l:14,w:"joy",r:true},{l:14,w:"royal",r:true},
   {l:14,w:"cloud",r:true},{l:14,w:"shout",r:true},{l:14,w:"found",r:true},{l:14,w:"cow",r:true},{l:14,w:"town",r:true},
@@ -351,7 +351,7 @@ const WORD_PAIRS = [
   {l:16,w:"crab",r:true},{l:16,w:"crash",r:true},{l:16,w:"crack",r:true},{l:16,w:"crush",r:true},
   {l:16,w:"spin",r:true},{l:16,w:"spot",r:true},{l:16,w:"spark",r:true},{l:16,w:"spell",r:true},
   {l:16,w:"stop",r:true},{l:16,w:"step",r:true},{l:16,w:"stick",r:true},{l:16,w:"stone",r:true},
-  {l:16,w:"crunk",r:false},{l:16,w:"sporg",r:false},{l:16,w:"stulf",r:false},
+  {l:16,w:"crelp",r:false},{l:16,w:"sporg",r:false},{l:16,w:"stulf",r:false},
   {l:17,w:"trap",r:true},{l:17,w:"trick",r:true},{l:17,w:"tree",r:true},{l:17,w:"troop",r:true},
   {l:17,w:"drop",r:true},{l:17,w:"drive",r:true},{l:17,w:"drool",r:true},{l:17,w:"drum",r:true},
   {l:17,w:"grab",r:true},{l:17,w:"green",r:true},{l:17,w:"groom",r:true},{l:17,w:"grow",r:true},
@@ -386,7 +386,7 @@ async function sg(key){try{const v=localStorage.getItem(key);return v?JSON.parse
 async function ss(key,val){try{localStorage.setItem(key,JSON.stringify(val));}catch{}}
 async function loadRoster(){return(await sg("wm:roster"))||[];}
 async function saveRoster(r){await ss("wm:roster",r);}
-async function loadProgress(name){return(await sg(`wm:p:${name}`))||{...DEFAULT_PROGRESS};}
+async function loadProgress(name){return{...DEFAULT_PROGRESS,...((await sg(`wm:p:${name}`))||{})};}
 async function saveProgress(name,prog){await ss(`wm:p:${name}`,{...prog,lastSeen:new Date().toISOString()});}
 
 const BASE_CSS=`
@@ -700,7 +700,7 @@ const STORIES = [
     difficulty:"⭐⭐",
     text:"You're trading with a villager farmer. He buys wheat in stacks of 20 and gives you 1 emerald per stack.\n\nYou harvested 85 wheat from your farm. How many full stacks of 20 can you make? How much wheat is left over?\n\nHow many emeralds do you earn?",
     answer:"85 ÷ 20 = 4 full stacks with 5 wheat left over. You earn 4 emeralds.",
-    bonus:"Emeralds cost 8 each to buy a bow from the fletcher. How many more emeralds do you need?",
+    bonus:"A bow from the fletcher costs 8 emeralds. How many more emeralds do you need?",
     bonusAnswer:"8 - 4 = 4 more emeralds needed." },
 
   { id:11, month:"November", week:3, icon:"🛖", title:"THE VILLAGE REBUILD",
@@ -714,7 +714,7 @@ const STORIES = [
     difficulty:"⭐⭐",
     text:"It's Thanksgiving in Minecraft! You're cooking a feast for 8 players on your server.\n\nYou need 3 cooked chicken per player, 2 baked potatoes per player, and 1 pumpkin pie per player.\n\nHow many of each food item do you need total?",
     answer:"Chicken: 8 × 3 = 24 cooked chicken. Potatoes: 8 × 2 = 16 baked potatoes. Pie: 8 × 1 = 8 pumpkin pies.",
-    bonus:"Each pumpkin makes 1 pie slice. How many pumpkins do you need?",
+    bonus:"Each pumpkin makes 1 pumpkin pie. How many pumpkins do you need?",
     bonusAnswer:"8 pies = 8 pumpkins." },
 
   // DECEMBER — Larger numbers & money intro
@@ -792,10 +792,10 @@ const STORIES = [
 
   { id:23, month:"February", week:3, icon:"🐠", title:"THE AQUARIUM",
     difficulty:"⭐⭐⭐⭐",
-    text:"You're building a giant aquarium! You caught:\n• 8 clownfish\n• 6 salmon\n• 12 tropical fish\n• 4 pufferfish\n\nHow many fish total?\n\nYou release 1/4 of the total back into the ocean because your tank is getting crowded. How many fish do you keep?",
-    answer:"8 + 6 + 12 + 4 = 30 fish total. 1/4 of 30 = 7.5 — round down to 7 (you can't release half a fish). Keep 30 - 7 = 23 fish.",
+    text:"You're building a giant aquarium! You caught:\n• 8 clownfish\n• 6 salmon\n• 12 tropical fish\n• 6 pufferfish\n\nHow many fish total?\n\nYou release 1/4 of the total back into the ocean because your tank is getting crowded. How many fish do you keep?",
+    answer:"8 + 6 + 12 + 6 = 32 fish total. 1/4 of 32 = 8 fish released. Keep 32 - 8 = 24 fish.",
     bonus:"Pufferfish are poisonous to the other fish. If each pufferfish harms 3 other fish, how many fish total are harmed?",
-    bonusAnswer:"4 pufferfish × 3 = 12 fish harmed." },
+    bonusAnswer:"6 pufferfish × 3 = 18 fish harmed." },
 
   { id:24, month:"February", week:4, icon:"💌", title:"THE MESSAGE IN A BOTTLE",
     difficulty:"⭐⭐⭐⭐",
@@ -881,8 +881,8 @@ const STORIES = [
     difficulty:"⭐⭐⭐⭐⭐",
     text:"In Minecraft, nighttime lasts 7 minutes. In that time, you need to fight off monsters.\n\nEvery minute, 3 zombies and 2 skeletons spawn near your base. After 7 minutes, how many zombies have spawned? How many skeletons?\n\nYou earn 1 emerald for every 5 enemies you defeat. If you defeat all of them, how many emeralds do you earn?",
     answer:"Zombies: 7 × 3 = 21. Skeletons: 7 × 2 = 14. Total enemies: 21 + 14 = 35. Emeralds: 35 ÷ 5 = 7 emeralds.",
-    bonus:"Daytime is 10 minutes long. How many total Minecraft days pass in a real hour if one full day/night cycle = 17 minutes?",
-    bonusAnswer:"60 ÷ 17 ≈ 3.5 — about 3 full days and part of a 4th." },
+    bonus:"One full Minecraft day and night together last 20 minutes. How many full Minecraft days pass in one real hour?",
+    bonusAnswer:"60 ÷ 20 = 3 full Minecraft days." },
 
   { id:36, month:"May", week:4, icon:"🐉", title:"THE ENDER DRAGON FINALE",
     difficulty:"⭐⭐⭐⭐⭐",
@@ -1012,8 +1012,8 @@ const STORIES = [
     difficulty:"⭐⭐⭐",
     text:"A river near your base froze over completely in the cold snap. The frozen river is 80 blocks long and 12 blocks wide.\n\nHow many ice blocks cover the surface?\n\nYou skate across at 2 times your normal walking speed. If you normally walk 4 blocks per second, how fast do you skate? How long does it take to cross the 80-block river?",
     answer:"Surface: 80 × 12 = 960 ice blocks. Skating speed: 4 × 2 = 8 blocks per second. Crossing time: 80 ÷ 8 = 10 seconds.",
-    bonus:"It takes 30 seconds to walk the same 80 blocks. How many seconds faster is skating?",
-    bonusAnswer:"30 - 10 = 20 seconds faster." },
+    bonus:"Walking at 4 blocks per second, how long does it take to walk the same 80 blocks? How many seconds faster is skating?",
+    bonusAnswer:"80 ÷ 4 = 20 seconds walking. 20 - 10 = 10 seconds faster." },
 
   { id:54, month:"January", week:2, icon:"🏹", title:"THE ARCHERY RANGE",
     difficulty:"⭐⭐⭐",
@@ -1105,9 +1105,9 @@ const STORIES = [
   { id:66, month:"April", week:2, icon:"🐢", title:"THE TURTLE SANCTUARY",
     difficulty:"⭐⭐⭐⭐⭐",
     text:"You built a turtle sanctuary on the beach. You start with 6 turtles. Each turtle lays 4 eggs. Each egg has a 7 in 10 chance of hatching.\n\nHow many eggs total? About how many baby turtles do you expect to hatch?\n\nBaby turtles grow up in about 20 Minecraft days. There are 3 generations in a season. Starting with 6 turtles, how many adult turtles might you have after 3 generations?",
-    answer:"Eggs: 6 × 4 = 24 eggs. Expected hatch: 24 × 0.7 = 16.8 ≈ 17 babies. After Gen 1: ~17 turtles. After Gen 2: 17 × 4 × 0.7 ≈ 47 turtles. After Gen 3: 47 × 4 × 0.7 ≈ 131 turtles.",
+    answer:"Eggs: 6 × 4 = 24 eggs. Expected hatch: 24 × 0.7 = 16.8 ≈ 17 babies. After Gen 1: ~17 turtles. After Gen 2: 17 × 4 × 0.7 = 47.6 ≈ 48 turtles. After Gen 3: 48 × 4 × 0.7 = 134.4 ≈ 134 turtles.",
     bonus:"Each grown turtle can drop a scute. How many scutes could you collect from the 3rd generation turtles?",
-    bonusAnswer:"About 131 scutes (1 per turtle)." },
+    bonusAnswer:"About 134 scutes (1 per turtle)." },
 
   { id:67, month:"April", week:3, icon:"🏺", title:"THE SMITHING TABLE",
     difficulty:"⭐⭐⭐⭐⭐",
@@ -1134,7 +1134,7 @@ const STORIES = [
   { id:70, month:"May", week:2, icon:"🔭", title:"THE NETHER CALCULATOR",
     difficulty:"⭐⭐⭐⭐⭐",
     text:"The Nether is 8 times smaller than the Overworld! Every 1 block you walk in the Nether = 8 blocks in the Overworld.\n\nYou need to get to a location 2,400 Overworld blocks away. If you travel through the Nether instead, how far do you walk in the Nether?\n\nWalking 8 blocks per second in the Nether, how long does the trip take in seconds? In minutes?",
-    answer:"2,400 ÷ 8 = 300 Nether blocks to walk. 300 ÷ 8 = 37.5 seconds.",
+    answer:"2,400 ÷ 8 = 300 Nether blocks to walk. 300 ÷ 8 = 37.5 seconds. That is less than 1 minute!",
     bonus:"How long would the same journey take walking in the Overworld at 4 blocks per second?",
     bonusAnswer:"2,400 ÷ 4 = 600 seconds = 10 minutes. The Nether saves you about 9 minutes 22 seconds!" },
 
@@ -1517,7 +1517,7 @@ const FLUENCY_PASSAGES = [
     text:"Wolves spawn naturally in forests and taiga biomes. They roam in small packs and are neutral toward players unless you attack them. To tame a wolf, you need bones, which drop from skeletons. Approach the wolf slowly and right-click it while holding a bone. Sometimes it takes only one bone, but other times you may need six or seven. You will know the wolf is tamed when a red collar appears around its neck and hearts float above its head. Once tamed, the wolf will follow you everywhere and fight any mobs that attack you. It is one of the most loyal companions in the game. You can also tell it to sit by right-clicking it again." },
   { id:9, level:"Deep Mine", grade:"3rd", icon:"💎", wc:96, lexile:"470L",
     title:"The Diamond Hunt",
-    text:"Diamonds are the most sought-after resource in Minecraft, and finding them requires patience and strategy. Diamonds only generate below a Y-coordinate of sixteen in the game world, which means you need to dig deep into the earth. The best strategy is to branch mine at Y-level twelve, which is where diamonds spawn most frequently. Create a long tunnel and then dig branches off to the sides every two blocks. This maximizes the amount of stone you uncover. Bring torches to keep the area lit, since dangerous mobs spawn in darkness. You will also want a good pickaxe — at least iron, because a wooden or stone pickaxe cannot mine diamond ore. When you finally find a diamond, the blue glittering ore in the dark stone feels like pure treasure." },
+    text:"Diamonds are the most sought-after resource in Minecraft, and finding them requires patience and strategy. Diamonds only generate below a Y-coordinate of sixteen in the game world, which means you need to dig deep into the earth. The best strategy is to branch mine near Y-level negative fifty-eight, deep in the deepslate, where diamonds spawn most often. Create a long tunnel and then dig branches off to the sides every two blocks. This maximizes the amount of stone you uncover. Bring torches to keep the area lit, since dangerous mobs spawn in darkness. You will also want a good pickaxe — at least iron, because a wooden or stone pickaxe cannot mine diamond ore. When you finally find a diamond, the blue glittering ore in the dark stone feels like pure treasure." },
   { id:10, level:"Nether", grade:"3rd", icon:"🔥", wc:101, lexile:"510L",
     title:"Surviving the Nether",
     text:"The Nether is one of the most dangerous dimensions in Minecraft, and entering it without the right equipment is a serious mistake. The air is hot and everything glows with an eerie orange and red light. Massive seas of lava stretch across the landscape, and terrifying creatures roam through the caverns and fortresses. Ghasts are large white jellyfish-like creatures that shoot explosive fireballs from a distance. Piglins are aggressive unless you are wearing gold armor, so always have at least one piece of gold equipment before entering. The Nether is eight times smaller than the Overworld, which makes it useful for fast travel. Every block you walk in the Nether equals eight blocks in the Overworld. This makes it possible to build rail systems and travel enormous distances very quickly." },
@@ -1525,6 +1525,9 @@ const FLUENCY_PASSAGES = [
     title:"Facing the Ender Dragon",
     text:"The Ender Dragon is the final boss of Minecraft, and defeating it is one of the greatest achievements in the game. Before you enter the End dimension, you need to be thoroughly prepared. Bring the best armor you have, enchanted if possible, along with a bow and many arrows, several stacks of food, and materials to pillar up and block off attacks. When you arrive in the End, you will see a large central island floating in an endless dark void. Tall obsidian pillars rise from the island, and on top of each one sits a glowing End Crystal. These crystals heal the Dragon, so you must destroy them first. Shoot them with your bow or climb the pillars and break them by hand. Once all the crystals are destroyed, the Dragon can no longer heal and you can focus all your attacks on it. When it finally falls, an egg appears on a fountain of bedrock, and a gateway opens that leads you home."},
 ];
+
+// Word counts come from the passage text itself so reading-speed scores are exact.
+FLUENCY_PASSAGES.forEach(p=>{p.wc=p.text.trim().split(/\s+/).filter(w=>/[A-Za-z0-9]/.test(w)).length;});
 
 function FluencySpeedrun({onEarn,initData={},onSaveProgress}){
   const levels=["Overworld","Forest","Swamp","Desert","Mountains","Deep Mine","Nether","The End"];
@@ -1552,7 +1555,7 @@ function FluencySpeedrun({onEarn,initData={},onSaveProgress}){
   function start(p){setPid(p.id);setErrors(0);setElapsed(0);setRunning(true);setStartTime(Date.now());setPhase("reading");}
   function finish(){
     setRunning(false);
-    const secs=Math.max(1,elapsed/1000);
+    const secs=Math.max(1,(Date.now()-startTime)/1000);
     const mins=secs/60;
     const cwpm=Math.max(0,Math.round((passage.wc-errors)/mins));
     const entry={pid:passage.id,title:passage.title,secs:Math.round(secs),errors,cwpm,date:new Date().toLocaleDateString()};
@@ -1686,7 +1689,7 @@ const AFFIXES = {
                 {root:"look",result:"looked",mc:"He looked into the dark cave and saw eyes."},
                 {root:"hike",result:"hiked",mc:"They hiked across the mountain biome.",note:"Drop the E."}]},
     { affix:"-er", rule:"Makes a comparison (bigger) or a person who does something (miner).", color:"#A78BFA",
-      examples:[{root:"mine",result:"miner",mc:"The miner dug down to Y-level 12."},
+      examples:[{root:"mine",result:"miner",mc:"The miner dug deep into the deepslate."},
                 {root:"fast",result:"faster",mc:"The horse is faster than walking."},
                 {root:"build",result:"builder",mc:"The builder made a castle out of quartz."},
                 {root:"big",result:"bigger",mc:"The ender dragon is bigger than any other mob.",note:"Double the G."},
@@ -1719,7 +1722,7 @@ const AFFIXES = {
       examples:[{root:"protect",result:"protection",mc:"Diamond armor gives the most protection."},
                 {root:"create",result:"creation",mc:"His castle creation took three real-life days.",note:"Drop the E."},
                 {root:"explore",result:"exploration",mc:"Exploration of the deep dark is very dangerous.",note:"Drop the E."},
-                {root:"destroy",result:"destruction",mc:"The TNT caused massive destruction in the mine."},
+                {root:"destroy",result:"destruction",mc:"The TNT caused massive destruction in the mine.",note:"Spelling changes: destroy becomes destruct."},
                 {root:"construct",result:"construction",mc:"The construction of the pyramid took many materials."}]},
   ],
   prefixes:[
@@ -1733,7 +1736,7 @@ const AFFIXES = {
       examples:[{root:"build",result:"rebuild",mc:"You had to rebuild your house after the creeper."},
                 {root:"plant",result:"replant",mc:"Replant your crops after every harvest."},
                 {root:"spawn",result:"respawn",mc:"You will respawn at your bed if you die."},
-                {root:"craft",result:"recraft",mc:"Recraft the item if you made a mistake."},
+                {root:"use",result:"reuse",mc:"Reuse your old planks to build a new fence."},
                 {root:"fill",result:"refill",mc:"Refill your food supply before the long journey."}]},
     { affix:"pre-", rule:"Means 'before'. Just add pre- to the start.", color:"#A78BFA",
       examples:[{root:"heat",result:"preheat",mc:"Preheat your furnace before smelting the ore."},
@@ -1751,7 +1754,7 @@ const AFFIXES = {
       examples:[{root:"connect",result:"disconnect",mc:"Don't disconnect from the server during a boss fight."},
                 {root:"appear",result:"disappear",mc:"Items disappear after five minutes on the ground."},
                 {root:"agree",result:"disagree",mc:"The two players disagree about the best strategy."},
-                {root:"cover",result:"discover",mc:"You discover diamonds at Y-level twelve."},
+                {root:"honest",result:"dishonest",mc:"A dishonest player took items from your chest."},
                 {root:"like",result:"dislike",mc:"Most players dislike getting lost in the cave system."}]},
   ]
 };
@@ -2062,7 +2065,7 @@ const COMPOUNDS = [
   {a:"out",b:"post",result:"outpost",icon:"🗼",mc:"Pillager outposts spawn raids and are guarded by crossbow archers."},
   {a:"gold",b:"fish",result:"goldfish",icon:"🐠",mc:"Tropical fish in an aquarium can look just like goldfish."},
   {a:"rain",b:"bow",result:"rainbow",icon:"🌈",mc:"Rainbows appear in the sky after it stops raining."},
-  {a:"grass",b:"land",result:"grassland",icon:"🌿",mc:"The grasslands biome is one of the most common places to spawn."},
+  {a:"grass",b:"land",result:"grassland",icon:"🌿",mc:"The plains are wide grasslands, one of the most common places to spawn."},
   {a:"farm",b:"land",result:"farmland",icon:"🌱",mc:"Hoe dirt into farmland to plant seeds and grow crops."},
   {a:"trap",b:"door",result:"trapdoor",icon:"🚪",mc:"Trapdoors open and close with a button or lever signal."},
   {a:"fire",b:"ball",result:"fireball",icon:"💥",mc:"Ghasts shoot fireballs that explode on contact."},
@@ -2359,7 +2362,7 @@ const QUEST_PASSAGES = [
     q2:{q:"What does this passage tell you about the difference between reading about something and doing it?",hint:"This is an inferencing question."},
     q3:{q:"What was Carlos's strategy? Why is having a strategy important?",hint:"Find his plan and think about why it mattered."}},
   { id:5, level:"3rd", icon:"💎", title:"The Diamond Dilemma",
-    text:"Priya found sixteen diamonds at Y-level twelve. It was the most she had ever found in one day. She also found her friend Marcus had been secretly mining in her claimed territory. The diamonds were in his tunnel, not hers. By the rules of the server, they were his to keep. She confronted him about mining in her area without asking. He apologized and said he had not noticed the border markers. After thinking it over, Priya decided to trust that he was telling the truth. They agreed to mark borders more clearly. In the end, Marcus gave her eight of the diamonds as a gesture of goodwill. Priya realized that being fair — even when you don't have to be — builds better friendships.",
+    text:"Priya found sixteen diamonds deep in the deepslate. It was the most she had ever found in one day. She also found her friend Marcus had been secretly mining in her claimed territory. The diamonds were in his tunnel, not hers. By the rules of the server, they were his to keep. She confronted him about mining in her area without asking. He apologized and said he had not noticed the border markers. After thinking it over, Priya decided to trust that he was telling the truth. They agreed to mark borders more clearly. In the end, Marcus gave her eight of the diamonds as a gesture of goodwill. Priya realized that being fair — even when you don't have to be — builds better friendships.",
     q1:{q:"What was the central conflict in this story?",hint:"What problem did Priya face?"},
     q2:{q:"Why did Marcus give Priya half the diamonds even though he didn't have to?",hint:"Think about what kind of person he was showing himself to be."},
     q3:{q:"What lesson does this story teach? Use evidence from the text.",hint:"Think about what Priya says at the end."}},
@@ -2677,13 +2680,23 @@ export default function App(){
   // Session timer
   useEffect(()=>{
     if(screen!=="game")return;
-    const id=setInterval(()=>setSec(s=>{
-      const n=s+1;
-      if(n>0&&n%900===0)handleEarn(1,"⏱ +1 EMERALD for 15 minutes!");
-      return n;
-    }),1000);
+    const id=setInterval(()=>{if(!document.hidden)setSec(s=>s+1);},1000);
     return()=>clearInterval(id);
   },[screen]);
+  useEffect(()=>{
+    if(screen==="game"&&sec>0&&sec%900===0)handleEarn(1,"⏱ +1 EMERALD for 15 minutes!");
+  },[sec]);
+
+  // Save immediately if the tab is closed or hidden, so no emerald is lost.
+  const latest=useRef({studentName:null,progress:null});
+  latest.current={studentName,progress};
+  useEffect(()=>{
+    const flush=()=>{const {studentName:n,progress:p}=latest.current;if(n&&p){try{localStorage.setItem(`wm:p:${n}`,JSON.stringify(p));}catch{}}};
+    const onVis=()=>{if(document.hidden)flush();};
+    window.addEventListener("pagehide",flush);
+    document.addEventListener("visibilitychange",onVis);
+    return()=>{window.removeEventListener("pagehide",flush);document.removeEventListener("visibilitychange",onVis);};
+  },[]);
 
   async function selectStudent(name){
     const p=await loadProgress(name);
